@@ -23,6 +23,8 @@ case class ArgConfig(
   debug : Boolean = false,
   iCacheSize : Int = 4096,
   dCacheSize : Int = 4096,
+  iCacheWays : Int = 1,
+  dCacheWays : Int = 1,
   pmp : Boolean = false,
   mulDiv : Boolean = true,
   cfu : Boolean = false,
@@ -61,6 +63,8 @@ object GenCoreDefault{
       opt[Int]("iCacheSize")     action { (v, c) => c.copy(iCacheSize = v) } text("Set instruction cache size, 0 mean no cache")
       // ex : -dCacheSize=XXX
       opt[Int]("dCacheSize")     action { (v, c) => c.copy(dCacheSize = v) } text("Set data cache size, 0 mean no cache")
+      opt[Int]("iCacheWays")     action { (v, c) => c.copy(iCacheWays = v) } text("Set instruction cache ways, default is 1")
+      opt[Int]("dCacheWays")     action { (v, c) => c.copy(dCacheWays = v) } text("Set data cache ways, default is 1")
       opt[Boolean]("pmp")    action { (v, c) => c.copy(pmp = v)   } text("Enable physical memory protection")
       opt[Boolean]("mulDiv")    action { (v, c) => c.copy(mulDiv = v)   } text("set RV32IM")
       opt[Boolean]("cfu")       action { (v, c) => c.copy(cfu = v)   } text("If true, add SIMD ADD custom function unit")
@@ -106,7 +110,7 @@ object GenCoreDefault{
             config = InstructionCacheConfig(
               cacheSize = argConfig.iCacheSize,
               bytePerLine = 32,
-              wayCount = if(linux) ((argConfig.iCacheSize + 4095) / 4096) else 1,
+              wayCount = argConfig.iCacheWays,
               addressWidth = 32,
               cpuDataWidth = 32,
               memDataWidth = 32,
@@ -135,7 +139,7 @@ object GenCoreDefault{
             config = new DataCacheConfig(
               cacheSize = argConfig.dCacheSize,
               bytePerLine = 32,
-              wayCount = if(linux) ((argConfig.dCacheSize + 4095) / 4096) else 1,
+              wayCount = argConfig.dCacheWays,
               addressWidth = 32,
               cpuDataWidth = 32,
               memDataWidth = 32,
